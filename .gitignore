@@ -39,3 +39,9 @@
 
 # debug information files
 *.dwo
+
+# Vscode
+.vscode/
+
+#Pong
+pong
