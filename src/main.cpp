@@ -1,5 +1,6 @@
 #include "raylib.h"
 
+// strukti
 struct zoga
 {
     float x;
@@ -24,15 +25,21 @@ void narisiZogo(const zoga &z);
 void posodobiIgralca(igralec &p, int visina);
 void narisiIgralca(const igralec &p);
 void posodobiCPU(igralec &a, const zoga &z, int visina);
+void rezultat(int tockeCPU, int tockeIgralec, int sirina_zaslona);
 
 int main()
 {
     const int sirina_zaslona{1800};
     const int visina_zaslona{1100};
+
     const float premer_zoge{20.0f};
+
     const float dolzina_igralca{240.0f};
     const float sirina_igralca{30.0f};
-    const float hitrost_igralca{6.0f};
+    const float hitrost_igralca{8.0f};
+
+    int tockeIgralec{0};
+    int tockeCPU{0};
 
     zoga z{sirina_zaslona / 2.0f, visina_zaslona / 2.0f, 12.0f, 10.0f, premer_zoge};
     igralec p{20.0f, visina_zaslona / 2.0f - dolzina_igralca / 2.0f, dolzina_igralca, sirina_igralca, hitrost_igralca};
@@ -48,15 +55,28 @@ int main()
         posodobiIgralca(p, visina_zaslona);
         posodobiCPU(a, z, visina_zaslona);
 
-        // Collision z igralcem (leva palica)
         if (CheckCollisionCircleRec(Vector2{z.x, z.y}, z.polmer, Rectangle{p.x, p.y, p.sirina, p.dolzina}))
         {
             z.dx *= -1;
         }
 
-        // Collision s CPU (desna palica)
         if (CheckCollisionCircleRec(Vector2{z.x, z.y}, z.polmer, Rectangle{a.x, a.y, a.sirina, a.dolzina}))
         {
+            z.dx *= -1;
+        }
+
+        if (z.x <= z.polmer)
+        {
+            tockeCPU++;
+            z.x = sirina_zaslona / 2.0f;
+            z.y = visina_zaslona / 2.0f;
+            z.dx *= -1;
+        }
+        if (z.x >= sirina_zaslona - z.polmer)
+        {
+            tockeIgralec++;
+            z.x = sirina_zaslona / 2.0f;
+            z.y = visina_zaslona / 2.0f;
             z.dx *= -1;
         }
 
@@ -66,6 +86,7 @@ int main()
         narisiZogo(z);
         narisiIgralca(p);
         narisiIgralca(a);
+        rezultat(tockeIgralec, tockeCPU, sirina_zaslona);
         EndDrawing();
     }
 
@@ -82,10 +103,10 @@ void posodobiZogo(zoga &z, int sirina, int visina)
 {
     z.x += z.dx;
     z.y += z.dy;
-    if (z.x >= sirina - z.polmer || z.x <= z.polmer)
-        z.dx *= -1;
     if (z.y >= visina - z.polmer || z.y <= z.polmer)
+    {
         z.dy *= -1;
+    }
 }
 
 void narisiZogo(const zoga &z)
@@ -136,4 +157,10 @@ void posodobiCPU(igralec &a, const zoga &z, int visina)
     {
         a.y = visina - a.dolzina;
     }
+}
+
+void rezultat(int tockeCPU, int tockeIgralec, int sirina_zaslona)
+{
+    DrawText(TextFormat("%d", tockeCPU), sirina_zaslona / 4, 20, 60, WHITE);
+    DrawText(TextFormat("%d", tockeIgralec), 3 * sirina_zaslona / 4, 20, 60, WHITE);
 }
