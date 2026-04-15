@@ -55,14 +55,18 @@ int main()
         posodobiIgralca(p, visina_zaslona);
         posodobiCPU(a, z, visina_zaslona);
 
+        // Igralec
         if (CheckCollisionCircleRec(Vector2{z.x, z.y}, z.polmer, Rectangle{p.x, p.y, p.sirina, p.dolzina}))
         {
             z.dx *= -1;
+            z.x = p.x + p.sirina + z.polmer;
         }
 
+        // CPU
         if (CheckCollisionCircleRec(Vector2{z.x, z.y}, z.polmer, Rectangle{a.x, a.y, a.sirina, a.dolzina}))
         {
             z.dx *= -1;
+            z.x = a.x - z.polmer;
         }
 
         if (z.x <= z.polmer)
