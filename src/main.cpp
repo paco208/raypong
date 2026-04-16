@@ -8,6 +8,7 @@ struct zoga
     float dx;
     float dy;
     float polmer;
+    float hitrost;
 };
 
 struct igralec
@@ -20,7 +21,7 @@ struct igralec
 };
 
 void polje(int sirina, int visina);
-void posodobiZogo(zoga &z, int sirina, int visina);
+void posodobiZogo(zoga &z, int visina);
 void narisiZogo(const zoga &z);
 void posodobiIgralca(igralec &p, int visina);
 void narisiIgralca(const igralec &p);
@@ -41,7 +42,7 @@ int main()
     int tockeIgralec{0};
     int tockeCPU{0};
 
-    zoga z{sirina_zaslona / 2.0f, visina_zaslona / 2.0f, 12.0f, 10.0f, premer_zoge};
+    zoga z{sirina_zaslona / 2.0f, visina_zaslona / 2.0f, 12.0f, 10.0f, premer_zoge, 25.0f};
     igralec p{20.0f, visina_zaslona / 2.0f - dolzina_igralca / 2.0f, dolzina_igralca, sirina_igralca, hitrost_igralca};
     igralec a{sirina_zaslona - 20.0f - sirina_igralca, visina_zaslona / 2.0f - dolzina_igralca / 2.0f, dolzina_igralca, sirina_igralca, hitrost_igralca};
 
@@ -51,22 +52,42 @@ int main()
     while (!WindowShouldClose())
     {
         // Posodabljanje
-        posodobiZogo(z, sirina_zaslona, visina_zaslona);
+        posodobiZogo(z, visina_zaslona);
         posodobiIgralca(p, visina_zaslona);
         posodobiCPU(a, z, visina_zaslona);
 
         // Igralec
         if (CheckCollisionCircleRec(Vector2{z.x, z.y}, z.polmer, Rectangle{p.x, p.y, p.sirina, p.dolzina}))
         {
-            z.dx *= -1;
-            z.x = p.x + p.sirina + z.polmer;
+            float center = p.y + p.dolzina / 2.0f;
+            float offset = (z.y - center) / (p.dolzina / 2.0f);
+
+            float kot = 0.75f;
+            z.dy = offset * kot * z.hitrost;
+
+            z.dx = -z.dx;
+
+            if (z.dx > 0)
+                z.x = p.x + p.sirina + z.polmer;
+            else
+                z.x = p.x - z.polmer;
         }
 
         // CPU
         if (CheckCollisionCircleRec(Vector2{z.x, z.y}, z.polmer, Rectangle{a.x, a.y, a.sirina, a.dolzina}))
         {
-            z.dx *= -1;
-            z.x = a.x - z.polmer;
+            float center = a.y + a.dolzina / 2.0f;
+            float offset = (z.y - center) / (a.dolzina / 2.0f);
+
+            float kot = 0.75f;
+
+            z.dy = offset * kot * z.hitrost;
+            z.dx = -z.dx;
+
+            if (z.dx > 0)
+                z.x = a.x + a.sirina + z.polmer;
+            else
+                z.x = a.x - z.polmer;
         }
 
         if (z.x <= z.polmer)
@@ -103,7 +124,7 @@ void polje(int sirina, int visina)
     DrawLine(sirina / 2, 0, sirina / 2, visina, WHITE);
 }
 
-void posodobiZogo(zoga &z, int sirina, int visina)
+void posodobiZogo(zoga &z, int visina)
 {
     z.x += z.dx;
     z.y += z.dy;
